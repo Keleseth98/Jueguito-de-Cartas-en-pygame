@@ -105,7 +105,7 @@ class Renderer:
         self.screen.blit(player_text, (1420, 805))
 
         enemy_text = font.render(f"Mana: {self.game.enemy_mana}", True, (255, 255, 0))
-        self.screen.blit(enemy_text, (1420, 50))
+        self.screen.blit(enemy_text, (1420, 100))
 
 
     def draw_end_turn_button(self):

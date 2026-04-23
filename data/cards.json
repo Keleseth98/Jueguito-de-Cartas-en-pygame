@@ -5,7 +5,7 @@
       "type": "creature",
       "attack": 2,
       "health": 1,
-      "hp_cost": 1,
+      "hp_cost": 2,
       "image": "assets/cards/lobo.png"
     },
 
