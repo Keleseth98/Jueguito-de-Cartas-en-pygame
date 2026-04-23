@@ -1,0 +1,49 @@
+{
+  "cards": {
+    "lobo": {
+      "name": "Lobo",
+      "type": "creature",
+      "attack": 2,
+      "health": 1,
+      "hp_cost": 1,
+      "image": "assets/cards/lobo.png"
+    },
+
+    "guerrero": {
+      "name": "Guerrero",
+      "type": "creature",
+      "attack": 5,
+      "health": 3,
+      "hp_cost": 3,
+      "image": "assets/cards/guerrero.png"
+    },
+
+    "fireball": {
+      "name": "Fireball",
+      "type": "spell",
+      "mana_cost": 2,
+      "effect": "damage",
+      "value": 3,
+      "image": "assets/cards/fireball.png"
+    },
+
+    "heal": {
+      "name": "Heal",
+      "type": "spell",
+      "mana_cost": 2,
+      "effect": "heal",
+      "value": 4,
+      "image": "assets/cards/heal.png"
+    }
+  },
+
+  "decks": {
+    "starter": [
+      "lobo", "lobo",
+      "guerrero",
+      "fireball", "fireball",
+      "heal"
+    ]
+  }
+}
+
