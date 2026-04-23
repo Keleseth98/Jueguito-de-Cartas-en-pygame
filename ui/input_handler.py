@@ -9,7 +9,7 @@ class InputHandler:
 
     def play_card(self, index):
         context = {
-            "mana": self.game.current_mana,
+            "mana": self.game.player_mana,
             "battlefield": self.game.battlefield
         }
 
@@ -24,7 +24,7 @@ class InputHandler:
             player.discard.append(card)
             player.hand.pop(index)
 
-            self.game.current_mana = context["mana"]
+            self.game.player_mana = context["mana"]
 
     
     def handle_cards_click(self, pos):

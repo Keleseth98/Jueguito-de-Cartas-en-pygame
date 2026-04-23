@@ -89,18 +89,24 @@ class Renderer:
         player = self.game.player
         enemy = self.game.enemy
 
-        # Player HP
+        # -------------------------
+        # HP
+        # -------------------------
         hp_text = font.render(f"HP: {player.hp}", True, (255, 255, 255))
         self.screen.blit(hp_text, (50, 835))
 
-        # Enemy HP
-        enemy_text = font.render(f"Enemy HP: {enemy.hp}", True, (255, 255, 255))
-        self.screen.blit(enemy_text, (50, 40))
+        enemyHP_text = font.render(f"Enemy HP: {enemy.hp}", True, (255, 255, 255))
+        self.screen.blit(enemyHP_text, (50, 40))
 
-        # Mana
-        mana = self.game.current_mana
-        mana_text = font.render(f"Mana: {mana}", True, (255, 255, 0))
-        self.screen.blit(mana_text, (1420, 805))
+        # -------------------------
+        # MANA 
+        # -------------------------
+        player_text = font.render(f"Mana: {self.game.player_mana}", True, (255, 255, 0))
+        self.screen.blit(player_text, (1420, 805))
+
+        enemy_text = font.render(f"Mana: {self.game.enemy_mana}", True, (255, 255, 0))
+        self.screen.blit(enemy_text, (1420, 50))
+
 
     def draw_end_turn_button(self):
         rect = pygame.Rect((cs.SCREEN_WIDTH - 200 ), (cs.SCREEN_HEIGHT / 2), 120, 50)
