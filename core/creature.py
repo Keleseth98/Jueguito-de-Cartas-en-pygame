@@ -1,17 +1,13 @@
-import pygame
 
 class Creature:
-    def __init__(self, name, attack, health, owner,image_path):
-        self.name = name
-        self.attack = attack
-        self.max_health = health
-        self.health = health
-        self.image_path = image_path
+    def __init__(self, card, owner):
+        self.name = card.name
+        self.attack = card.attack
+        self.max_health = card.health
+        self.health = card.health
 
-        self.owner = owner  # referencia al jugador
-
-        img = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.smoothscale(img, (150, 210))
+        self.image = card.image  # 🔥 reutilizar imagen
+        self.owner = owner
 
         self.can_attack = False
         self.alive = True

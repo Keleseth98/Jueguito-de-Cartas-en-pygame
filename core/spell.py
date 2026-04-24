@@ -2,8 +2,9 @@ from core.card import Card
 import pygame
 
 class SpellCard(Card):
-    def __init__(self, name, mana_cost, effect,image_path):
-        super().__init__(name)
+    def __init__(self, name, mana_cost, effect, image_path):
+        super().__init__(name, image_path)
+
         self.mana_cost = mana_cost
         self.effect = effect
 

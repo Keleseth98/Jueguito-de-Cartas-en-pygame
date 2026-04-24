@@ -33,11 +33,11 @@ class Renderer:
         posiciones fijas definidas en el renderer.
         """
 
-        # 🔥 Criaturas del jugador
+        #  Criaturas del jugador
         player_creatures = self.game.battlefield.player_side
         self.draw_row(player_creatures, self.player_start)
 
-        # 🔥 Criaturas del enemigo
+        #  Criaturas del enemigo
         enemy_creatures = self.game.battlefield.enemy_side
         self.draw_row(enemy_creatures, self.enemy_start)
 
@@ -51,37 +51,60 @@ class Renderer:
     def draw_creature(self, creature, x, y):
         rect = pygame.Rect(x, y, self.card_width, self.card_height)
 
-        # 🔥 color base
+        # color base
         self.screen.blit(creature.image, (x, y))
 
-        # 🔥 HIGHLIGHT (AQUÍ VA)
+        #  HIGHLIGHT 
         selected = self.game.input_handler.selected_creature
 
         if selected == creature:
             pygame.draw.rect(self.screen, (255, 255, 0), rect, 3)  # borde amarillo
 
-        # 🔥 texto stats
+        # texto stats
         font = pygame.font.Font(None, 24)
         text = font.render(f"{creature.attack}/{creature.health}", True, (255, 255, 255))
         self.screen.blit(text, (x + 10, y + 70))
 
     def draw_hand(self):
         player = self.game.player
+        mx, my = pygame.mouse.get_pos()
 
         for i, card in enumerate(player.hand):
             x = 500 + i * self.spacing
             y = 800
 
-            # 🔥 crear rect (CLAVE)
-            card.rect = pygame.Rect(x, y, self.card_width, self.card_height)
+            # posición base
+            card.base_x = x
+            card.base_y = y
 
-            # 🔥 dibujar carta
-            self.screen.blit(card.image, (x, y))
+            # inicializar render
+            if card.render_x == 0 and card.render_y == 0:
+                card.render_x = x
+                card.render_y = y
 
-            # 🔥 hover (usando rect)
-            mx, my = pygame.mouse.get_pos()
-            if card.rect.collidepoint(mx, my):
-                pygame.draw.rect(self.screen, (255, 255, 0), card.rect, 3)
+            # actualizar rect
+            card.update_rect()
+
+            # hover
+            is_hover = card.rect.collidepoint(mx, my)
+
+            # animación suave
+            target_y = y - 40 if is_hover else y
+            target_scale = 1.1 if is_hover else 1.0
+
+            speed = 0.2
+
+            card.render_y += (target_y - card.render_y) * speed
+            card.scale += (target_scale - card.scale) * speed
+
+            # render con escala
+            
+            img = pygame.transform.smoothscale(
+                card.image,
+                (int(150 * card.scale), int(210 * card.scale))
+            )
+
+            self.screen.blit(img, (card.render_x, card.render_y))
         
     def draw_ui(self):
         font = pygame.font.Font(None, 30)
