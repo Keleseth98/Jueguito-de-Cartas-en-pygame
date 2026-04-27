@@ -22,7 +22,23 @@ class Renderer:
         self.draw_creatures()
         self.draw_hand()
         self.draw_ui()
+        self.draw_preview()
+        self.draw_animation()
+        
         self.end_turn_rect = self.draw_end_turn_button()
+
+    def draw_preview(self):
+        for creature in self.game.battlefield.player_side + self.game.battlefield.enemy_side:
+
+            if getattr(creature, "preview_active", False):
+
+                # 🔥 usar imagen ORIGINAL
+                big_image = pygame.transform.smoothscale(
+                    creature.original_image,
+                    (300, 420)   # o el tamaño que quieras
+                )
+
+                self.screen.blit(big_image, (50, 200))
 
     def draw_battlefield(self):
         self.screen.blit(self.background, (0, 0))
@@ -48,19 +64,57 @@ class Renderer:
             x = start_x + i * self.spacing
             self.draw_creature(creature, x, y)
 
-    def draw_creature(self, creature, x, y):
-        rect = pygame.Rect(x, y, self.card_width, self.card_height)
+    def draw_animation(self):
+        anim = self.game.current_animation
 
-        # color base
+        if not anim:
+            return
+
+        dt = getattr(self.game, "delta_time", 0)
+
+        anim.update(dt)
+        anim.draw(self.screen)
+
+        if anim.finished:
+            self.game.current_animation = None
+
+    def draw_creature(self, creature, x, y):
+        
+
+        # rect (hitbox)
+        rect = pygame.Rect(x, y, self.card_width, self.card_height)
+        creature.rect = rect  # útil para otras partes
+
+        # inicializar variables si no existen
+        if not hasattr(creature, "hover_time"):
+            creature.hover_time = 0
+            creature.preview_active = False
+
+        # mouse + tiempo
+        mx, my = pygame.mouse.get_pos()
+        dt = getattr(self.game, "delta_time", 0)
+
+        if rect.collidepoint(mx, my):
+            creature.hover_time += dt
+
+            # clamp (evita valores absurdos)
+            if creature.hover_time > 1:
+                creature.hover_time = 1
+
+            creature.preview_active = creature.hover_time >= 1
+        else:
+            creature.hover_time = 0
+            creature.preview_active = False
+
+        # dibujar carta
         self.screen.blit(creature.image, (x, y))
 
-        #  HIGHLIGHT 
+        # HIGHLIGHT (selección para atacar)
         selected = self.game.input_handler.selected_creature
-
         if selected == creature:
-            pygame.draw.rect(self.screen, (255, 255, 0), rect, 3)  # borde amarillo
+            pygame.draw.rect(self.screen, (255, 255, 0), rect, 3)
 
-        # texto stats
+        # stats
         font = pygame.font.Font(None, 24)
         text = font.render(f"{creature.attack}/{creature.health}", True, (255, 255, 255))
         self.screen.blit(text, (x + 10, y + 70))

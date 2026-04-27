@@ -1,3 +1,5 @@
+from ui.animations.combat_animation import CombatAnimation
+
 class Game:
     def __init__(self, player, enemy, battlefield):
         self.player = player
@@ -20,6 +22,8 @@ class Game:
         # Mana actual
         self.player_mana = 1
         self.enemy_mana = 1
+
+        self.current_animation = None
 
         self.game_over = False
 
@@ -59,6 +63,23 @@ class Game:
 
         # actualizar mana restante
         self.enemy_mana = context["mana"]
+
+    def resolve_attack(self, attacker, target):
+        if self.game_over:
+            return
+
+        # crear animación
+
+        self.current_animation = CombatAnimation(attacker, target)
+
+        # ejecutar lógica real
+        attacker.attack_target(target)
+
+        attacker.can_attack = False
+
+        self.combat_controller.cleanup()
+
+        self.check_game_over()
 
     # -------------------------
     # CIERRE DE CICLO (NUEVO TURNO)

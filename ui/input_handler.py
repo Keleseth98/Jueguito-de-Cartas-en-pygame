@@ -1,4 +1,5 @@
 from utils import constants as cs
+from ui.animations.combat_animation import CombatAnimation
 
 class InputHandler:
     def __init__(self, game):
@@ -94,24 +95,28 @@ class InputHandler:
         if not attacker:
             return
 
-        # AQUÍ llama al modelo attack_target
-        attacker.attack_target(target)
+        # crear animación ANTES del combate real
+        self.game.current_animation = CombatAnimation(attacker, target)
 
-        # desactivar ataque
+        # ejecutar lógica real
+        self.game.resolve_attack(attacker, target)
+
         attacker.can_attack = False
 
-        # limpiar muertos
+        #limpiar muertos
         self.game.combat_controller.cleanup()
 
-        # revisar fin del juego
         if self.game.check_game_over():
             return
 
-        # reset selección
         self.selected_creature = None
         self.attack_mode = False
 
     def handle_click(self, pos):
+
+        if self.game.current_animation:
+            return
+
         if not self.game.is_player_turn or self.game.game_over:
             return
 

@@ -6,7 +6,8 @@ class Creature:
         self.max_health = card.health
         self.health = card.health
 
-        self.image = card.image  # 🔥 reutilizar imagen
+        self.original_image = card.original_image
+        self.image = card.image  
         self.owner = owner
 
         self.can_attack = False

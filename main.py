@@ -17,6 +17,8 @@ pygame.init()
 db = CardDatabase("data/cards.json")
 factory = CardFactory(db)
 
+
+
 # -------------------------
 # DECK
 # -------------------------
@@ -48,7 +50,7 @@ input_handler = InputHandler(game)
 game.renderer = renderer
 game.input_handler = input_handler
 
-ai = AIController(battlefield)
+ai = AIController(game, battlefield)
 game.ai = ai
 
 combat_controller = CombatController(battlefield)
@@ -72,6 +74,10 @@ for _ in range(3):
 running = True
 
 while running:
+    #inicializar el dt
+    dt = clock.tick(60) / 1000
+    game.delta_time = dt
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False

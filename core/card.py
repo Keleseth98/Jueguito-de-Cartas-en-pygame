@@ -4,10 +4,14 @@ class Card:
     def __init__(self, name, image_path):
         self.name = name
         self.image_path = image_path
+        self.hover_time = 0
+        self.preview_active = False
 
-        # IMAGEN
-        img = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.smoothscale(img, (150, 210))
+        # ORIGINAL (ALTA RESOLUCIÓN)
+        self.original_image = pygame.image.load(image_path).convert_alpha()
+
+        # VERSION PEQUEÑA (para tablero)
+        self.image = pygame.transform.smoothscale(self.original_image, (150, 210))
 
         # POSICIÓN BASE (lógica)
         self.base_x = 0
@@ -36,4 +40,4 @@ class Card:
         )
 
     def play(self, source, target, context):
-        raise NotImplementedError("Cada carta debe implementar play()")
+        raise NotImplementedError

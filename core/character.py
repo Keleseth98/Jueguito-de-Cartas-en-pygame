@@ -1,4 +1,6 @@
 from core.deck import Deck
+import pygame
+
 
 class Character:
     def __init__(self, name, deck, is_player=False):
@@ -15,8 +17,20 @@ class Character:
         self.total_mana_used = 0
         self.creatures = []
 
+        #imagen dle Heore
+        if is_player:
+            path = "assets/heroes/player.png"
+        else:
+            path = "assets/heroes/enemy.png"
+
+        self.original_image = pygame.image.load(path).convert_alpha()
+        self.image = pygame.transform.smoothscale(self.original_image, (150, 210))
+
     def gain_hp(self, amount):
         self.hp = min(self.hp + amount, self.max_hp)
+
+    def is_alive(self):
+        return self.hp > 0
 
     def draw_card(self):
         if len(self.hand) >= 5:

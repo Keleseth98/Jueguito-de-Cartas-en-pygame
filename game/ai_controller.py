@@ -1,7 +1,7 @@
-# game/ai_controller.py
 
 class AIController:
-    def __init__(self, battlefield):
+    def __init__(self,game, battlefield):
+        self.game = game
         self.battlefield = battlefield
 
     # -------------------------
@@ -63,6 +63,10 @@ class AIController:
 
         print("\n⚔️ IA ataca")
 
+        # si hay animación, esperar
+        if self.game.current_animation:
+            return
+
         for creature in creatures:
             if not creature.is_alive() or not creature.can_attack:
                 continue
@@ -70,8 +74,12 @@ class AIController:
             target = self.choose_target(creature, enemy, enemy_creatures)
 
             print(f"🤖 {creature.name} ataca a {target.name}")
-            creature.attack_target(target)
 
+            self.game.resolve_attack(creature, target)
+
+            return  # SOLO UNO POR FRAME
+
+        # cuando ya no haya ataques
         self.cleanup()
 
     # -------------------------
