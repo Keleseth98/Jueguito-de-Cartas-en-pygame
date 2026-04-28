@@ -12,7 +12,7 @@
     "guerrero": {
       "name": "Guerrero",
       "type": "creature",
-      "attack": 5,
+      "attack": 3,
       "health": 3,
       "hp_cost": 3,
       "image": "assets/cards/guerrero.png"

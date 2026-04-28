@@ -1,9 +1,12 @@
 import pygame
+from ui.animations.damage_text import DamageText
 
 class CombatAnimation:
     def __init__(self, attacker, defender):
         self.attacker = attacker
         self.defender = defender
+        self.damage_texts = []
+        self.damage_triggered = False
 
         self.timer = 0
         self.duration = 1.5  # total animación
@@ -16,9 +19,31 @@ class CombatAnimation:
     def update(self, dt):
         self.timer += dt
 
+        # MOMENTO DEL IMPACTO (0.5s)
+        if not self.damage_triggered and self.timer >= 0.5:
+            self.damage_triggered = True
+
+            # daño al defensor
+            self.damage_texts.append(
+                DamageText(self.attacker.attack, 1200, 450)
+            )
+
+            # daño al atacante (si aplica)
+            if hasattr(self.defender, "attack"):
+                self.damage_texts.append(
+                    DamageText(self.defender.attack, 250, 450)
+                )
+
+        # actualizar textos
+        self.damage_texts = [
+            dtxt for dtxt in self.damage_texts if dtxt.update(dt)
+        ]
+
+        #  cambio de fase visual
         if self.timer >= 1.0 and self.phase == "impact":
             self.phase = "result"
 
+        #  terminar animación
         if self.timer >= self.duration:
             self.finished = True
 
@@ -39,6 +64,10 @@ class CombatAnimation:
         #  dibujar
         screen.blit(attacker_img, left_pos)
         screen.blit(defender_img, right_pos)
+
+        # dibujar textos de daño
+        for dtxt in self.damage_texts:
+            dtxt.draw(screen)
 
         # overlay de daño
         if self.phase == "impact":

@@ -23,6 +23,11 @@ class Game:
         self.player_mana = 1
         self.enemy_mana = 1
 
+        #Tiempos de animacion de mano inicial
+        self.initial_draw_queue = []
+        self.draw_timer = 0
+        self.draw_interval = 0.3  # segundos entre cartas
+
         self.current_animation = None
 
         self.game_over = False
@@ -68,17 +73,16 @@ class Game:
         if self.game_over:
             return
 
-        # crear animación
+        from ui.animations.combat_animation import CombatAnimation
 
+        #  crear animación 
         self.current_animation = CombatAnimation(attacker, target)
 
-        # ejecutar lógica real
+        #  lógica
         attacker.attack_target(target)
-
         attacker.can_attack = False
 
         self.combat_controller.cleanup()
-
         self.check_game_over()
 
     # -------------------------
@@ -111,11 +115,36 @@ class Game:
             c.enable_attack()
 
         # robar cartas
-        self.player.draw_card()
-        self.enemy.draw_card()
+        card = self.player.draw_card()
+        if card:
+            self.renderer.on_card_draw(card, True)
+
+        card = self.enemy.draw_card()
+        if card:
+            self.renderer.on_card_draw(card, False)
 
         # turno vuelve al jugador
         self.is_player_turn = True
+
+    def update(self, dt):
+        # sistema de robo inicial
+        if self.initial_draw_queue:
+            self.draw_timer += dt
+
+            if self.draw_timer >= self.draw_interval:
+                self.draw_timer = 0
+
+                who = self.initial_draw_queue.pop(0)
+
+                if who == "player":
+                    card = self.player.draw_card()
+                    if card:
+                        self.renderer.on_card_draw(card, True)
+
+                else:
+                    card = self.enemy.draw_card()
+                    if card:
+                        self.renderer.on_card_draw(card, False)
 
     # -------------------------
     # GAME OVER

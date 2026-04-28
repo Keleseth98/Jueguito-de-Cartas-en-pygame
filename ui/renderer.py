@@ -10,6 +10,10 @@ class Renderer:
         self.card_height = 210
         self.spacing = 180  # ajusta según tu diseño
 
+        #POSICIONES DE LOS DECK
+        self.deck_pos = (1450, 600)  
+        self.enemy_deck_pos = (1400, 100)
+
         # POSICIONES EXACTAS DE CASILLAS DE INVOCACION DE CARTA
         self.player_start = (342, 438)
         self.enemy_start = (342, 175)
@@ -119,6 +123,16 @@ class Renderer:
         text = font.render(f"{creature.attack}/{creature.health}", True, (255, 255, 255))
         self.screen.blit(text, (x + 10, y + 70))
 
+    def on_card_draw(self, card, is_player=True):
+        if is_player:
+            x, y = self.deck_pos
+        else:
+            x, y = self.enemy_deck_pos
+
+        card.render_x = x
+        card.render_y = y
+        card.scale = 1.0
+
     def draw_hand(self):
         player = self.game.player
         mx, my = pygame.mouse.get_pos()
@@ -127,39 +141,44 @@ class Renderer:
             x = 500 + i * self.spacing
             y = 800
 
-            # posición base
-            card.base_x = x
-            card.base_y = y
-
-            # inicializar render
-            if card.render_x == 0 and card.render_y == 0:
+            # inicializar render (solo una vez)
+            if not hasattr(card, "render_x"):
                 card.render_x = x
                 card.render_y = y
+                card.scale = 1.0
 
-            # actualizar rect
-            card.update_rect()
+            # target dinámico
+            target_x = x
+            is_hover = False
 
-            # hover
-            is_hover = card.rect.collidepoint(mx, my)
+            # rect temporal para hover (usar posición target)
+            temp_rect = pygame.Rect(x, y, 150, 210)
+            if temp_rect.collidepoint(mx, my):
+                is_hover = True
 
-            # animación suave
+            # targets
             target_y = y - 40 if is_hover else y
             target_scale = 1.1 if is_hover else 1.0
 
             speed = 0.2
 
+            # interpolación 
+            card.render_x += (target_x - card.render_x) * speed
             card.render_y += (target_y - card.render_y) * speed
             card.scale += (target_scale - card.scale) * speed
 
             # render con escala
-            
-            img = pygame.transform.smoothscale(
-                card.image,
-                (int(150 * card.scale), int(210 * card.scale))
-            )
+            width = int(150 * card.scale)
+            height = int(210 * card.scale)
+
+            img = pygame.transform.smoothscale(card.image, (width, height))
 
             self.screen.blit(img, (card.render_x, card.render_y))
-        
+
+            # actualizar rect FINAL 
+            card.rect = pygame.Rect(card.render_x, card.render_y, width, height)
+
+
     def draw_ui(self):
         font = pygame.font.Font(None, 30)
 

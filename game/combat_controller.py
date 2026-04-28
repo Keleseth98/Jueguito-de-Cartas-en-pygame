@@ -1,3 +1,5 @@
+from ui.animations.damage_text import DamageText
+
 class CombatController:
     def __init__(self, battlefield):
         self.battlefield = battlefield
@@ -57,6 +59,16 @@ class CombatController:
             return
 
         attacker.attack_target(target)
+
+        # posición izquierda (atacante)
+        self.damage_texts.append(
+            DamageText(self.attacker.attack, 250, 450)
+        )
+
+        # posición derecha (defensor)
+        self.damage_texts.append(
+            DamageText(self.defender.attack, 1200, 450)
+        )
 
         self.cleanup()
 

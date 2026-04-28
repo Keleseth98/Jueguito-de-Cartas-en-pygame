@@ -35,7 +35,7 @@ class Character:
     def draw_card(self):
         if len(self.hand) >= 5:
             print("⚠️ Mano llena")
-            return
+            return None
 
         card = self.deck.draw()
 
@@ -45,6 +45,9 @@ class Character:
 
         if card:
             self.hand.append(card)
+            return card   
+
+        return None
 
     def receive_damage(self, amount):
         self.hp = max(0, self.hp - amount)

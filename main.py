@@ -61,9 +61,8 @@ game.combat_controller = combat_controller
 
 
 # mano inicial
-for _ in range(3):
-    player.draw_card()
-    enemy.draw_card()
+game.initial_draw_queue = ["player", "player", "player",
+                           "enemy", "enemy", "enemy"]
 
 
 
@@ -77,6 +76,7 @@ while running:
     #inicializar el dt
     dt = clock.tick(60) / 1000
     game.delta_time = dt
+    game.update(dt)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
