@@ -1,0 +1,19 @@
+{
+  "enemies": {
+    "hermitano": {
+      "name": "Hermitaño",
+      "starting_hp": 3,
+      "hp_growth_turns": 2,
+      "image": "assets/heroes/hermitano.png",
+      "deck": ["lobo", "lobo", "ardilla"]
+    },
+
+    "bestia": {
+      "name": "Bestia",
+      "starting_hp": 5,
+      "hp_growth_turns": 3,
+      "image": "assets/heroes/enemigo_base.jpg",
+      "deck": ["lobo", "lobo", "oso", "serpiente"]
+    }
+  }
+}

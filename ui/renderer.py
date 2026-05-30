@@ -73,14 +73,8 @@ class Renderer:
 
         if not anim:
             return
-
-        dt = getattr(self.game, "delta_time", 0)
-
-        anim.update(dt)
+        
         anim.draw(self.screen)
-
-        if anim.finished:
-            self.game.current_animation = None
 
     def draw_creature(self, creature, x, y):
         

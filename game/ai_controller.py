@@ -1,8 +1,15 @@
 
 class AIController:
-    def __init__(self,game, battlefield):
+    def __init__(self, game, battlefield):
         self.game = game
         self.battlefield = battlefield
+
+        # ESTADO DE ATAQUE
+        self.attacking = False
+        self.attack_index = 0
+        # 🔥 FIX: snapshot de criaturas al inicio del turno para que el índice
+        # no se desincronice si alguna criatura muere durante la fase de ataque
+        self._attack_creatures_snapshot = []
 
     # -------------------------
     # TURNO COMPLETO IA
@@ -10,12 +17,14 @@ class AIController:
     def play_turn(self, ai_player, enemy_player, context):
         print("\n🤖 Turno del enemigo")
 
-        # 1. Jugar cartas
         self.play_cards(ai_player, enemy_player, context)
 
-        # 2. Atacar
-        self.attack(ai_player, enemy_player)
-
+        # 🔥 FIX: activar fase de ataque (antes estaba en False — la IA nunca atacaba)
+        self.attacking = True
+        self.attack_index = 0
+        self._attack_creatures_snapshot = list(
+            self.battlefield.get_player_creatures(ai_player)
+        )
     # -------------------------
     # JUGAR CARTAS
     # -------------------------
@@ -58,16 +67,25 @@ class AIController:
     # ATAQUE
     # -------------------------
     def attack(self, ai, enemy):
-        creatures = self.battlefield.get_player_creatures(ai)
-        enemy_creatures = self.battlefield.get_enemy_creatures(ai)
-
-        print("\n⚔️ IA ataca")
-
-        # si hay animación, esperar
-        if self.game.current_animation:
+        # Solo procesar si la fase de ataque está activa
+        if not self.attacking:
             return
 
-        for creature in creatures:
+        # 🔥 FIX: esperar que termine la animación actual antes del siguiente ataque
+        # Antes se comprobaba current_animation pero también hay que esperar animation_queue
+        if self.game.current_animation or self.game.animation_queue:
+            return
+
+        enemy_creatures = self.battlefield.get_enemy_creatures(ai)
+        # 🔥 FIX: usar snapshot fijo — si se recalcula creatures cada frame
+        # y una criatura muere, el índice apunta a la criatura equivocada
+        creatures = self._attack_creatures_snapshot
+
+        # recorrer criaturas una por una
+        while self.attack_index < len(creatures):
+            creature = creatures[self.attack_index]
+            self.attack_index += 1
+
             if not creature.is_alive() or not creature.can_attack:
                 continue
 
@@ -76,11 +94,16 @@ class AIController:
             print(f"🤖 {creature.name} ataca a {target.name}")
 
             self.game.resolve_attack(creature, target)
+            return  # solo un ataque por frame, esperar animación
 
-            return  # SOLO UNO POR FRAME
-
-        # cuando ya no haya ataques
+        # Todos los ataques terminaron
+        print("✅ IA terminó de atacar")
+        self.attacking = False
+        self._attack_creatures_snapshot = []
         self.cleanup()
+        # 🔥 FIX: cerrar el ciclo de turno AQUÍ, no en end_turn()
+        # Garantiza que finish_turn_cycle ocurre DESPUÉS de todas las animaciones
+        self.game.finish_turn_cycle()
 
     # -------------------------
     # SELECCIÓN DE OBJETIVO
@@ -110,23 +133,23 @@ class AIController:
 
             score = 0
 
-            # 🔥 1. trade perfecto (yo sobrevivo y mato)
+            # 1. trade perfecto (yo sobrevivo y mato)
             if kills and survives:
                 score += 100
 
-            # 🔥 2. trade neutro (ambos mueren)
+            # 2. trade neutro (ambos mueren)
             elif kills:
                 score += 50
 
-            # 🔥 3. daño sin morir
+            # 3. daño sin morir
             elif survives:
                 score += 20
 
-            # 🔥 penalizar suicidio
+            #  penalizar suicidio
             else:
                 score -= 20
 
-            # 🔥 pequeño factor aleatorio (para que no sea perfecta)
+            #  pequeño factor aleatorio (para que no sea perfecta)
             import random
             score += random.randint(-5, 5)
 
@@ -134,7 +157,7 @@ class AIController:
                 best_score = score
                 best_target = target
 
-        # 🔥 decidir si atacar héroe
+        # decidir si atacar héroe
         if best_target is None:
             return enemy
 

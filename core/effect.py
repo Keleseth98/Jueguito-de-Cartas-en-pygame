@@ -17,5 +17,6 @@ class HealEffect(Effect):
         self.amount = amount
 
     def apply(self, source, target):
-        source.hp += self.amount
-        print(f"💚 Cura {self.amount}")
+        # 🔥 FIX: respetar max_hp al curar — antes podía subir HP infinitamente
+        source.hp = min(source.hp + self.amount, source.max_hp)
+        print(f"💚 Cura {self.amount} (HP: {source.hp}/{source.max_hp})")

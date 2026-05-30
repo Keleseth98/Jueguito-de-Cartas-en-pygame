@@ -8,6 +8,31 @@
       "hp_cost": 2,
       "image": "assets/cards/lobo.png"
     },
+    "ardilla": {
+      "name": "Ardilla",
+      "type": "creature",
+      "attack": 1,
+      "health": 1,
+      "hp_cost": 1,
+      "image": "assets/cards/generic_roadent.jpg"
+    },
+    "oso": {
+      "name": "Oso",
+      "type": "creature",
+      "attack": 2,
+      "health": 4,
+      "hp_cost": 3,
+      "image": "assets/cards/madre_oso.jpg"
+    },
+
+    "serpiente": {
+      "name": "Serpiente",
+      "type": "creature",
+      "attack": 2,
+      "health": 2,
+      "hp_cost": 2,
+      "image": "assets/cards/serpiente.jpg"
+    },
 
     "guerrero": {
       "name": "Guerrero",
@@ -16,6 +41,23 @@
       "health": 3,
       "hp_cost": 3,
       "image": "assets/cards/guerrero.png"
+    },
+      "guardian":{
+      "name": "Guardian",
+      "type":"creature",
+      "attack": 1,
+      "health": 5,
+      "hp_cost": 4,
+      "image": "assets/cards/guardian.png"
+    },
+
+    "elemental_fuego":{
+      "name": "Elemental De Fuego",
+      "type":"creature",
+      "attack": 5,
+      "health": 2,
+      "hp_cost": 7,
+      "image": "assets/cards/elemental_fuego.png"
     },
 
     "fireball": {
@@ -34,7 +76,26 @@
       "effect": "heal",
       "value": 4,
       "image": "assets/cards/heal.png"
+    },
+
+    "explosion_arcana": {
+      "name": "Explosion Arcana",
+      "type": "spell",
+      "mana_cost": 3,
+      "effect": "damage",
+      "value": 3,
+      "image": "assets/cards/explosion_arcana.png"
+    },
+
+    "golpe_relampago": {
+      "name": "Golpe de Relampago",
+      "type": "spell",
+      "mana_cost": 1,
+      "effect": "damage",
+      "value": 2,
+      "image": "assets/cards/golpe_relampago.png"
     }
+
   },
 
   "decks": {

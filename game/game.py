@@ -6,9 +6,13 @@ class Game:
         self.enemy = enemy
         self.battlefield = battlefield
 
-        # HP por turnos 
-        self.hp_turns = 0
-        self.max_hp_turns = 5
+        # HP por turnos — contadores separados por personaje
+        # El jugador sube HP 4 veces, el enemigo usa hp_growth_turns del JSON (se sobreescribe en main.py)
+        self.player_hp_turns = 0
+        self.player_max_hp_turns = 4  # el jugador escala 4 veces
+
+        self.enemy_hp_turns = 0
+        self.enemy_max_hp_turns = 2   # se sobreescribe desde enemy_data["hp_growth_turns"]
 
         #  Mana por turnos 
         self.mana_turns = 0
@@ -28,6 +32,7 @@ class Game:
         self.draw_timer = 0
         self.draw_interval = 0.3  # segundos entre cartas
 
+        self.animation_queue = []
         self.current_animation = None
 
         self.game_over = False
@@ -44,14 +49,14 @@ class Game:
 
             self.is_player_turn = False
 
-            # turno IA
+            # turno IA: juega cartas y activa self.ai.attacking = True
             self.run_enemy_turn()
 
             if self.check_game_over():
                 return
 
-            # cerrar turno enemigo
-            self.finish_turn_cycle()
+            # 🔥 FIX: finish_turn_cycle ya NO se llama aquí
+            # Lo llama ai.attack() cuando termina todos sus ataques
 
     # -------------------------
     # TURNO IA
@@ -66,7 +71,6 @@ class Game:
 
         self.ai.play_turn(self.enemy, self.player, context)
 
-        # actualizar mana restante
         self.enemy_mana = context["mana"]
 
     def resolve_attack(self, attacker, target):
@@ -76,7 +80,8 @@ class Game:
         from ui.animations.combat_animation import CombatAnimation
 
         #  crear animación 
-        self.current_animation = CombatAnimation(attacker, target)
+        self.animation_queue.append(
+            CombatAnimation(attacker, target))
 
         #  lógica
         attacker.attack_target(target)
@@ -89,7 +94,10 @@ class Game:
     # CIERRE DE CICLO (NUEVO TURNO)
     # -------------------------
     def finish_turn_cycle(self):
-        print("🔁 Fin de turno (enemigo)")
+        if self.game_over:
+            return
+
+        print("🔁 Inicio de turno del jugador")
 
         self.turn += 1
 
@@ -102,10 +110,16 @@ class Game:
             self.enemy_mana = new_mana
 
         # -------- VIDA --------
-        if self.hp_turns < self.max_hp_turns:
-            self.hp_turns += 1
+        # Cada personaje tiene su propio contador de veces que puede crecer
+        if self.player_hp_turns < self.player_max_hp_turns:
+            self.player_hp_turns += 1
             self.player.gain_hp(5)
+            print(f"❤️ Jugador: HP {self.player.hp}/{self.player.max_hp}")
+
+        if self.enemy_hp_turns < self.enemy_max_hp_turns:
+            self.enemy_hp_turns += 1
             self.enemy.gain_hp(5)
+            print(f"❤️ Enemigo: HP {self.enemy.hp}/{self.enemy.max_hp}")
 
         # activar criaturas
         for c in self.battlefield.player_side:
@@ -127,7 +141,22 @@ class Game:
         self.is_player_turn = True
 
     def update(self, dt):
-        # sistema de robo inicial
+        # -------------------------
+        # ANIMACIONES DE COMBATE
+        # -------------------------
+        if not self.current_animation and self.animation_queue:
+            self.current_animation = self.animation_queue.pop(0)
+
+        if self.current_animation:
+            self.current_animation.update(dt)
+
+            if self.current_animation.finished:
+                self.current_animation = None
+
+
+        # -------------------------
+        # ROBO INICIAL 
+        # -------------------------
         if self.initial_draw_queue:
             self.draw_timer += dt
 
@@ -140,11 +169,14 @@ class Game:
                     card = self.player.draw_card()
                     if card:
                         self.renderer.on_card_draw(card, True)
-
                 else:
                     card = self.enemy.draw_card()
                     if card:
                         self.renderer.on_card_draw(card, False)
+
+        # 🔥 FIX: la IA solo ataca si el reparto inicial ya terminó
+        if not self.is_player_turn and not self.game_over and not self.initial_draw_queue:
+            self.ai.attack(self.enemy, self.player)
 
     # -------------------------
     # GAME OVER
