@@ -29,14 +29,7 @@ class AIController:
     # JUGAR CARTAS
     # -------------------------
     def play_cards(self, ai, enemy, context):
-        """
-        IA simple:
-        - Intenta jugar todas las cartas posibles
-        - Respeta HP (criaturas) y mana (hechizos)
-        """
-
         i = 0
-
         while i < len(ai.hand):
             card = ai.hand[i]
 
@@ -45,21 +38,28 @@ class AIController:
                     i += 1
                     continue
 
-            # Evitar suicidio con criaturas
             if hasattr(card, "hp_cost"):
                 if ai.hp <= card.hp_cost:
                     i += 1
                     continue
 
-            # Intentar jugar carta
-            played = card.play(ai, enemy, context)
+            # Determinar target según tipo de hechizo
+            target = enemy  # default: héroe enemigo
+
+            if getattr(card, "target_type", "any") == "creature":
+                best = self._choose_spell_target(card, context)
+                if best is None:
+                    # No hay criaturas válidas, no jugar esta carta
+                    i += 1
+                    continue
+                target = best
+
+            played = card.play(ai, target, context)
 
             if played:
-                print(f"🤖 IA juega {card.name}")
-
+                print(f"🤖 IA juega {card.name} → {target.name}")
                 ai.discard.append(card)
                 ai.hand.pop(i)
-
             else:
                 i += 1
 
@@ -105,9 +105,42 @@ class AIController:
         # Garantiza que finish_turn_cycle ocurre DESPUÉS de todas las animaciones
         self.game.finish_turn_cycle()
 
+    def _choose_spell_target(self, card, context):
+        """
+        Elige la mejor criatura enemiga para un hechizo dirigido.
+        Prioridad:
+          1. Criatura que muere exactamente con el daño (valor máximo)
+          2. Criatura con más ataque (amenaza mayor)
+          3. Cualquier criatura viva
+        Devuelve None si no hay criaturas enemigas.
+        """
+        # Las criaturas enemigas de la IA son las del lado del jugador
+        targets = self.battlefield.player_side
+        alive   = [c for c in targets if c.is_alive()]
+
+        if not alive:
+            return None
+
+        damage = getattr(card.effect, "amount", 0)
+
+        best       = None
+        best_score = -999
+
+        for c in alive:
+            score = 0
+            if c.health <= damage:          # hechizo la mata
+                score += 100
+            score += c.attack * 5           # priorizar amenazas altas
+            score -= c.health               # preferir las más débiles
+
+            if score > best_score:
+                best_score = score
+                best       = c
+
+        return best
+
     # -------------------------
-    # SELECCIÓN DE OBJETIVO
-    # -------------------------
+    # SELECCIÓN DE OBJETIVO (ataque de criatura)
     def choose_target(self, creature, enemy, enemy_creatures):
         """
         Prioridad:

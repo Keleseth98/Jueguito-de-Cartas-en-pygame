@@ -112,9 +112,38 @@ class Renderer:
         if selected == creature:
             pygame.draw.rect(self.screen, (255, 255, 0), rect, 3)
 
-        # stats
+        # HIGHLIGHT (objetivo de hechizo) — borde azul parpadeante en criaturas enemigas
+        ih = self.game.input_handler
+        if ih.spell_targeting_mode:
+            enemy_creatures = self.game.battlefield.get_enemy_creatures(self.game.player)
+            if creature in enemy_creatures:
+                import math
+                pulse = abs(math.sin(self.game.delta_time * 0 + pygame.time.get_ticks() / 300))
+                alpha = int(80 + 120 * pulse)
+                overlay = pygame.Surface((self.card_width, self.card_height), pygame.SRCALPHA)
+                overlay.fill((80, 160, 255, alpha))
+                self.screen.blit(overlay, (x, y))
+                pygame.draw.rect(self.screen, (80, 200, 255), rect, 3)
+
+        # stats con color dinámico: rojo si recibió daño recientemente, blanco si no
+        flash = getattr(creature, "hp_flash_timer", 0)
+
+        # hacer tick del timer
+        if flash > 0:
+            creature.hp_flash_timer = max(0, flash - dt)
+
+        # color: rojo puro al recibir daño, se desvanece a blanco en 1.5s
+        if flash > 0:
+            t = flash / 1.5          # 1.0 → 0.0
+            r = 255
+            g = int(255 * (1 - t))   # 0 → 255 (de rojo a blanco)
+            b = int(255 * (1 - t))
+            stats_color = (r, g, b)
+        else:
+            stats_color = (255, 255, 255)
+
         font = pygame.font.Font(None, 24)
-        text = font.render(f"{creature.attack}/{creature.health}", True, (255, 255, 255))
+        text = font.render(f"{creature.attack}/{creature.health}", True, stats_color)
         self.screen.blit(text, (x + 10, y + 70))
 
     def on_card_draw(self, card, is_player=True):

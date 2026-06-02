@@ -16,6 +16,8 @@ class Creature:
     def receive_damage(self, amount):
         self.health = max(0, self.health - amount)
         print(f"💥 {self.name} recibe {amount} daño (HP: {self.health})")
+        # activa el flash rojo que el renderer lee para colorear el HP
+        self.hp_flash_timer = 1.5
 
         if self.health <= 0:
             self.alive = False

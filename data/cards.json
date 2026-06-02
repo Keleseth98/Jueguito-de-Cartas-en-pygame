@@ -22,7 +22,7 @@
       "attack": 2,
       "health": 4,
       "hp_cost": 3,
-      "image": "assets/cards/madre_oso.jpg"
+      "image": "assets/cards/madre_oso.png"
     },
 
     "serpiente": {
@@ -31,7 +31,7 @@
       "attack": 2,
       "health": 2,
       "hp_cost": 2,
-      "image": "assets/cards/serpiente.jpg"
+      "image": "assets/cards/serpiente.png"
     },
 
     "guerrero": {
@@ -56,8 +56,17 @@
       "type":"creature",
       "attack": 5,
       "health": 2,
-      "hp_cost": 7,
+      "hp_cost": 5,
       "image": "assets/cards/elemental_fuego.png"
+    },
+
+    "mago":{
+      "name": "Mago lider de Tropa",
+      "type":"creature",
+      "attack": 4,
+      "health": 5,
+      "hp_cost": 6,
+      "image": "assets/cards/mago.png"
     },
 
     "fireball": {
@@ -82,7 +91,7 @@
       "name": "Explosion Arcana",
       "type": "spell",
       "mana_cost": 3,
-      "effect": "damage",
+      "effect": "aoe_damage",
       "value": 3,
       "image": "assets/cards/explosion_arcana.png"
     },
@@ -91,7 +100,7 @@
       "name": "Golpe de Relampago",
       "type": "spell",
       "mana_cost": 1,
-      "effect": "damage",
+      "effect": "creature_damage",
       "value": 2,
       "image": "assets/cards/golpe_relampago.png"
     }

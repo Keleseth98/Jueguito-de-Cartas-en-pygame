@@ -66,7 +66,8 @@ class Game:
 
         context = {
             "mana": self.enemy_mana,
-            "battlefield": self.battlefield
+            "battlefield": self.battlefield,
+            "game": self
         }
 
         self.ai.play_turn(self.enemy, self.player, context)

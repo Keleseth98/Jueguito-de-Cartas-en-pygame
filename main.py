@@ -36,6 +36,8 @@ enemy_factory = EnemyFactory(factory, enemy_db)
 ENEMY_SEQUENCE = [
     "hermitano",
     "bestia",
+    "mago",
+    "caballero"
 ]
 
 # -------------------------
