@@ -46,7 +46,7 @@ ENEMY_SEQUENCE = [
 PLAYER_DECK_IDS = [
     "lobo", "lobo",
     "guerrero",
-    "fireball", "fireball",
+    "fireball",
     "heal"
 ]
 

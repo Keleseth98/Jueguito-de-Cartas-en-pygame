@@ -13,7 +13,7 @@
       "starting_hp": 5,
       "hp_growth_turns": 3,
       "image": "assets/heroes/enemigo_base.jpg",
-      "deck": ["lobo", "lobo", "oso", "serpiente"]
+      "deck": ["lobo", "lobo", "oso", "serpiente","ardilla"]
     },
 
     "mago": {
@@ -21,7 +21,7 @@
       "starting_hp": 5,
       "hp_growth_turns": 3,
       "image": "assets/heroes/enemigo_base.jpg",
-      "deck": ["elemental_fuego", "golpe_relampago","golpe_relampago", "oso", "explosion_arcana","serpiente","serpiente"]
+      "deck": ["elemental_fuego", "golpe_relampago","golpe_relampago", "oso", "explosion_arcana","lobo","heal","fireball"]
     },
 
     "caballero": {

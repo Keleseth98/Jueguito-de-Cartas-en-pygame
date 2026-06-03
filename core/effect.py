@@ -20,6 +20,9 @@ class CreatureDamageEffect(Effect):
     def apply(self, source, target, context=None):
         target.receive_damage(self.amount)
         print(f"⚡ {self.amount} daño a {target.name}")
+
+
+class AoeDamageEffect(Effect):
     """Daño a TODAS las criaturas enemigas en el campo."""
     def __init__(self, amount):
         self.amount = amount

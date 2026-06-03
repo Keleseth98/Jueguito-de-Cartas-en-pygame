@@ -33,23 +33,29 @@ class AIController:
         while i < len(ai.hand):
             card = ai.hand[i]
 
+            # Validar mana
             if hasattr(card, "mana_cost"):
                 if context["mana"] < card.mana_cost:
                     i += 1
                     continue
 
+            # Validar HP mínimo para no suicidarse
             if hasattr(card, "hp_cost"):
                 if ai.hp <= card.hp_cost:
                     i += 1
                     continue
 
-            # Determinar target según tipo de hechizo
-            target = enemy  # default: héroe enemigo
+                # Evaluación de riesgo antes de invocar una criatura
+                if not self._should_summon(card, ai, enemy, context):
+                    i += 1
+                    continue
+
+            # Determinar target para hechizos dirigidos
+            target = enemy
 
             if getattr(card, "target_type", "any") == "creature":
                 best = self._choose_spell_target(card, context)
                 if best is None:
-                    # No hay criaturas válidas, no jugar esta carta
                     i += 1
                     continue
                 target = best
@@ -62,6 +68,35 @@ class AIController:
                 ai.hand.pop(i)
             else:
                 i += 1
+
+    def _should_summon(self, card, ai, enemy, context):
+        """
+        Invoca siempre, salvo que:
+        1. No tenga HP suficiente (suicidio)
+        2. Ya esté ganando la mesa claramente Y tenga poca vida
+        """
+        hp_after = ai.hp - card.hp_cost
+
+        # Nunca quedarse en 1 HP o menos
+        if hp_after <= 1:
+            return False
+
+        # Si ya domina la mesa y tiene poca vida, no arriesgarse
+        ai_creatures     = self.battlefield.enemy_side
+        player_creatures = self.battlefield.player_side
+        ai_count         = sum(1 for c in ai_creatures if c.is_alive())
+        player_count     = sum(1 for c in player_creatures if c.is_alive())
+        ai_attack_total  = sum(c.attack for c in ai_creatures if c.is_alive())
+        player_threat    = sum(c.attack for c in player_creatures if c.is_alive())
+
+        winning_board = ai_count > player_count and ai_attack_total > player_threat
+        low_hp        = hp_after <= player_threat + 2
+
+        if winning_board and low_hp:
+            print(f"🤖 IA NO invoca {card.name} (gana la mesa y tiene poca vida)")
+            return False
+
+        return True
 
     # -------------------------
     # ATAQUE
